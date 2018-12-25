@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+<SplitPane fx:id="splitPane" dividerPositions="0.8" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="1000.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+  <items>
+    <AnchorPane fx:id="rightPane" minHeight="-Infinity" minWidth="-Infinity">
+         <children>
+            <Pane fx:id="centerPane" layoutX="177.0" layoutY="249.0" prefHeight="500.0" prefWidth="600.0" />
+            <Label layoutX="442.0" layoutY="14.0" text="Czas działania:" />
+            <Label fx:id="timeLabel" layoutX="582.0" layoutY="14.0" text="0" />
+         </children></AnchorPane>
+    <AnchorPane fx:id="leftPane" minHeight="-Infinity" minWidth="-Infinity">
+         <children>
+            <TextField fx:id="sensorsTextField" layoutX="14.0" layoutY="26.0" prefHeight="31.0" prefWidth="101.0" promptText="Czujnik" text="0" AnchorPane.leftAnchor="14.0" />
+            <TextField fx:id="pointsTextField" layoutX="14.0" layoutY="70.0" prefHeight="31.0" prefWidth="101.0" promptText="Punkt" text="0" />
+            <TextField layoutX="14.0" layoutY="107.0" prefHeight="31.0" prefWidth="101.0" />
+            <Button fx:id="buttonStart" layoutX="14.0" layoutY="154.0" mnemonicParsing="false" onAction="#start" text="Start" />
+            <Label layoutX="128.0" layoutY="31.0" text="Ilość czujników" />
+            <Label layoutX="128.0" layoutY="75.0" text="ilość punktów" />
+            <CheckBox fx:id="showRangeCheckBox" layoutX="18.0" layoutY="378.0" mnemonicParsing="false" onAction="#rangeCheckBox" selected="true" text="Pokaż zasięg" />
+            <CheckBox fx:id="showPointsCheckBox" layoutX="18.0" layoutY="422.0" mnemonicParsing="false" onAction="#pointsCheckBox" selected="true" text="Pokaż punkty" />
+            <CheckBox fx:id="showArrowCheckBox" layoutX="18.0" layoutY="460.0" mnemonicParsing="false" onAction="#arrowCheckBox" selected="true" text="Pokaż strzałki" />
+         </children></AnchorPane>
+  </items>
+</SplitPane>
