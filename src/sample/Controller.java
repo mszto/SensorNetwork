@@ -15,9 +15,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-import java.util.Random;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 public class Controller {
     public SplitPane splitPane;
@@ -26,14 +24,16 @@ public class Controller {
     public TextField sensorsTextField, pointsTextField;
     public CheckBox showRangeCheckBox, showPointsCheckBox, showArrowCheckBox;
     public Label timeLabel;
-    private Vector<Sensor> sensors = new Vector<>();
-    private Vector<Point> points = new Vector<>();
+    private List<Sensor> sensors = new ArrayList<>();
+    private List<Sensor> sensorsOff = new ArrayList<>();
+    private List<Point> points = new ArrayList<>();
     AnimationTimer animationTimer;
-    private Vector<HotSpot> hotSpots = new Vector<>();
-    private int time = 0, min = 0, i = 0, gold = 0, change = 0;
+    private List<HotSpot> hotSpots = new ArrayList<>();
+    private int time = 0, min = 0, i = 0, gold = 0, changeSenseorSend = 0;
+    boolean hotSpotSed = false;
     long timeon, timeoff;
     private Stack<Point> stack = new Stack<>();
-    private Kmean kmean=new Kmean();
+    private Kmean kmean = new Kmean();
 
     //metoda odpowiada za wyświtleniu bądz usunięcie kólka przy czujniku "pokaż zasięg"
     public void rangeCheckBox(ActionEvent event) {
@@ -63,13 +63,25 @@ public class Controller {
 
     public void arrowCheckBox(ActionEvent event) {
         if (showArrowCheckBox.isSelected()) {
-            kmean.getClousters().forEach(clouster -> {clouster.getPoints().forEach(sensor -> {centerPane.getChildren().add(sensor.getArrow());});});
+            kmean.getClousters().forEach(clouster -> {
+                clouster.getPoints().forEach(sensor -> {
+                    if(sensor.getStatus()==1) {
+                        centerPane.getChildren().add(sensor.getArrow());
+                    }
+                });
+            });
         } else {
-            kmean.getClousters().forEach(clouster -> {clouster.getPoints().forEach(sensor -> {centerPane.getChildren().remove(sensor.getArrow());});});
+            kmean.getClousters().forEach(clouster -> {
+                clouster.getPoints().forEach(sensor -> {
+
+                        centerPane.getChildren().remove(sensor.getArrow());
+
+                });
+            });
         }
     }
 
-    private void addSensors(){
+    private void addSensors() {
         Random rand = new Random();
         int sens = Integer.parseInt(sensorsTextField.getText());
         for (int i = 1; i <= sens; i++) {
@@ -79,27 +91,34 @@ public class Controller {
         }
     }
 
-    private void addPoints(){
+    private void addPoints() {
         Random rand = new Random();
         int poi = Integer.parseInt(pointsTextField.getText());
         for (int i = 1; i <= poi; i++) {
             Point point = new Point(rand.nextInt(530) + 30, rand.nextInt(420) + 30);
             points.add(point);
             centerPane.getChildren().addAll(point);
+            sensors.forEach(sensor -> {sensor.addPointToListen(point);});
         }
     }
 
-    private void addHotSpots(){
+    private void addHotSpots() {
         hotSpots.add(new HotSpot());
         hotSpots.get(0).setId(0);
         centerPane.getChildren().addAll(hotSpots.get(0).getSensor());
-        int k=1;
+        int k = 1;
         kmean.getClousters().forEach(clouster -> {
             clouster.setHotSpot();
             hotSpots.add(clouster.getHotSpot());
             clouster.getHotSpot().setId(k);
         });
-        hotSpots.forEach(hotSpot -> {hotSpot.getSensor().setHotSpot(hotSpots.get(0));});
+        hotSpots.forEach(hotSpot -> {
+            hotSpot.getSensor().setHotSpot(hotSpots.get(0));
+        });
+        hotSpots.forEach(hotSpot -> {
+            sensors.remove(hotSpot.getSensor());
+            hotSpot.getSensor().setFill(Color.PINK);
+        });
     }
     //metoda odpowiada za nasłuchiwane przycisku start i zainicjowanie symulacji
 
@@ -150,7 +169,8 @@ public class Controller {
                 points.get(b).setFill(Color.ORANGE);
                 stack.push(points.get(b));
             }
-            timeoff=System.currentTimeMillis();
+            sensors.forEach(sensor -> {sensor.reductionbatteryLevel(time);});
+            timeoff = System.currentTimeMillis();
         }
 
 
@@ -158,6 +178,7 @@ public class Controller {
             while (!stack.empty()) {
                 Point point = stack.pop();
                 point.setFill(Color.BLACK);
+                sensors.forEach(sensor -> {sensor.addPointRead(point);});
             }
         }
 
@@ -165,19 +186,35 @@ public class Controller {
             timeon = System.currentTimeMillis();
             gold = 0;
             sensors.forEach(sensor -> {
+                if(sensor.getStatus()==1)
                 sensor.getArrow().setFill(Color.GOLD);
+
             });
-            change = 1;
+            changeSenseorSend = 1;
         }
 
-        if (change == 1) {
-            if (System.currentTimeMillis() - timeon >= 500) {
-                sensors.forEach(sensor -> {
-                    sensor.getArrow().setFill(Color.BLACK);
-                });
-                change = 0;
-            }
+        if (hotSpotSed && System.currentTimeMillis() - timeon >= 500) {
+            hotSpots.forEach(hotSpot -> {
+                hotSpot.sendOff();
+            });
+            hotSpotSed = false;
+        }
 
+        if (changeSenseorSend == 1 && System.currentTimeMillis() - timeon >= 500) {
+
+            timeon = System.currentTimeMillis();
+            sensors.forEach(sensor -> {
+                sensor.getArrow().setFill(Color.BLACK);
+                sensor.batteryLevelAfterSend(time);
+            });
+            hotSpots.forEach(hotSpot -> {
+                if(hotSpot.getSensor().getStatus()==1) {
+                    hotSpot.send();
+                    hotSpot.getSensor().batteryLevelAfterSend(time);
+                }
+            });
+            hotSpotSed = true;
+            changeSenseorSend = 0;
 
         }
 

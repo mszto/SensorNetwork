@@ -9,6 +9,7 @@ public class Point extends Circle {
     private final int ORANGE=1;
     private int id;
     private int status=0;
+
     public Arrow arrow;
     public Point(){
         super(8);

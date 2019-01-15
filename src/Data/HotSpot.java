@@ -33,4 +33,12 @@ public class HotSpot {
     public void setId(int id) {
         this.id = id;
     }
+
+    public void send(){
+        sensor.getArrow().setFill(Color.GOLD);
+    }
+
+    public void sendOff(){
+        sensor.getArrow().setFill(Color.BLACK);
+    }
 }

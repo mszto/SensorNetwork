@@ -9,7 +9,7 @@ import java.util.*;
 
 public class Clouster {
 
-    Vector<Sensor> points;
+    List<Sensor> points;
     HotSpot hotSpot;
     Centroid centroid;
     Centroid newCetroid;
@@ -24,7 +24,7 @@ public class Clouster {
         this.centroid.setY(y);
         this.centroid.setX(x);
         hotSpot=new HotSpot();
-        points=new Vector<>();
+        points=new ArrayList<>();
     }
 
     public void addPoint(Sensor p){
@@ -79,7 +79,7 @@ public class Clouster {
         }
     }
 
-    public void setHotSpot(Vector<Sensor> sensors){
+    public void setHotSpot(List<Sensor> sensors){
         hotSpot=new HotSpot();
         int j=0;
         hotSpot.setSensor(points.get(0));

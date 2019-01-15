@@ -30,7 +30,7 @@ public class Kmean {
     }
 
 
-    public void createClousters(Vector<Sensor> points){
+    public void createClousters(List<Sensor> points){
         int changed=0;
         do{
             changed=0;
@@ -44,7 +44,7 @@ public class Kmean {
 
 
 
-    public void addPointsToclouster(Vector<Sensor> points){
+    public void addPointsToclouster(List<Sensor> points){
         clousters.forEach(clouster -> {clouster.getPoints().clear();});
         for (Sensor point: points) {
             double distance=800;
