@@ -18,16 +18,19 @@ public class Sensor extends Rectangle {
     private final int GREEN=1;
     private  final int RED=0;
     private final int WHITE=2;
-    private int id;
+    private int id; //numer id sensora
     private int status=1;
-    private int baterry;
-    private Circle circle;
-    private Label label;
-    private HotSpot hotSpot;
-    private Arrow arrow;
-    private List<Point> points;
-    private Map<Point,Integer> numberOfReads;
-    private String timeWork;
+    private int baterry; //poziom bateri
+    private Circle circle; // zasięg działania sensora
+    private Label label; //wyświetlany jest numer id sensora
+    private HotSpot hotSpot; //hotspot do którego przesyłane są dane
+    private Arrow arrow; //kierunek przesyłania danych
+    private List<Point> points; //nasłuchiwane punkty
+    private Map<Point,Integer> numberOfReads; // mapa przechowuje liczbę odczytanych danych z każdego punktu
+    private String timeWork; //czas działąnia sensora
+    private  boolean isGetNewData; // flaga odpowiada za informację czy zostały odczytane czujnik
+
+    // konstruktory
     public Sensor (){
         this(0,0);
     }
@@ -36,8 +39,9 @@ public class Sensor extends Rectangle {
     }
 
 
+
     public Sensor (int x, int y, int id){
-        super(x,y,20,20);
+        super(x,y,20,20); // utworznie prostokąta odpowiadającego za wizualizację sensora
         setFill(Color.LIGHTGREEN);
         this.id=id;
         this.label=new Label(Integer.toString(id));
@@ -52,13 +56,16 @@ public class Sensor extends Rectangle {
         this.baterry=100;
         this.numberOfReads=new HashMap<>();
         this.timeWork="0";
+        this.isGetNewData=false;
     }
 
+    // ustawienie hot spoda oraz utworzenie linie któa wskazuje kierunek przysłania danych
     public void setHotSpot(HotSpot hotSpot){
         this.hotSpot=hotSpot;
         arrow=new Arrow(getX(),getY(),hotSpot.getSensor().getX()+10,hotSpot.getSensor().getY()+10,8.0);
     }
 
+    // redukcja beteri po przesłaniu oraz wyłączenie sensora i zapisanie czasu jego pracy, kolor jest zmieniany na czerwono oraz status ustawiny jest na 0 czyli wyłączony
     public void batteryLevelAfterSend(int time){
         baterry-=2;
         if(baterry<=0){
@@ -75,10 +82,12 @@ public class Sensor extends Rectangle {
         }
     }
 
-
+    //oblicza odległość eklidesową sensora do punktu
     private double distance(Point point){
         return Math.sqrt(Math.pow(circle.getCenterX()-point.getCenterX(),2)+Math.pow(circle.getCenterY()- point.getCenterY(),2));
     }
+
+    // ustalenie czy punkt znajduje się w zasigu sensora
     public void addPointToListen(Point point){
         if(distance(point)<=circle.getRadius()) {
             points.add(point);
@@ -86,14 +95,15 @@ public class Sensor extends Rectangle {
         }
     }
 
+    //dodanie liczby odczutu punktu
     public void addPointRead(Point point){
         if(numberOfReads.get(point)!=null) {
-            System.out.println("Przed: "+numberOfReads.get(point)+" Po:");
+            isGetNewData=true;
             numberOfReads.put(point, numberOfReads.get(point) + 1);
-            System.out.println(numberOfReads.get(point));
         }
     }
 
+    //redukcja bateri po pewnym czasie
     public void reductionbatteryLevel(int time){
         baterry-=1;
         if(baterry<=0){
@@ -109,6 +119,8 @@ public class Sensor extends Rectangle {
             timeWork=sB.toString();
         }
     }
+
+    //getery oraz setery
 
     public int getIdSensor() {
         return this.id;
@@ -177,5 +189,13 @@ public class Sensor extends Rectangle {
 
     public void setPoints(List<Point> points) {
         this.points = points;
+    }
+
+    public boolean isGetNewData() {
+        return isGetNewData;
+    }
+
+    public void setGetNewData(boolean getNewData) {
+        isGetNewData = getNewData;
     }
 }

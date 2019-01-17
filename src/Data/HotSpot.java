@@ -5,10 +5,12 @@ import javafx.scene.paint.Color;
 public class HotSpot {
     Sensor sensor;
     private int id;
+    private  boolean isMain;
 
     public HotSpot(Sensor sensor, int id){
         this.sensor=sensor;
         this.id=id;
+        this.isMain=false;
     }
 
     public HotSpot(){
@@ -16,6 +18,7 @@ public class HotSpot {
         sensor.setFill(Color.PINK);
         sensor.setX(10);
         sensor.setY(10);
+        this.isMain=false;
     }
 
     public Sensor getSensor() {
@@ -40,5 +43,13 @@ public class HotSpot {
 
     public void sendOff(){
         sensor.getArrow().setFill(Color.BLACK);
+    }
+
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public void setMain(boolean main) {
+        isMain = main;
     }
 }

@@ -3,6 +3,8 @@ package Data;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+import java.util.Objects;
+
 
 public class Point extends Circle {
     private final int BLACK=0;
@@ -16,8 +18,9 @@ public class Point extends Circle {
         setFill(Color.BLACK);
     }
 
-    public Point(int x, int y){
+    public Point(int x, int y,int id){
         super(x,y,4);
+        this.id=id;
         setFill(Color.BLACK);
     }
 
@@ -30,4 +33,5 @@ public class Point extends Circle {
     public void setOff(){
         status=BLACK;
     }
+
 }

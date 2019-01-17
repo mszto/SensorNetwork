@@ -1,3 +1,6 @@
+
+// klasa odpowiada za przedstawienie klastra
+
 package Kmean;
 
 import Data.HotSpot;
@@ -11,30 +14,33 @@ public class Clouster {
 
     List<Sensor> points;
     HotSpot hotSpot;
-    Centroid centroid;
+    Centroid centroid; // centroid klastra czyli inaczej środek przestrzeni w której znajdują  się sensory
     Centroid newCetroid;
 
-    public Clouster(){
-        this(3.0,4.0);
+    //konstruktory
+    public Clouster() {
+        this(3.0, 4.0);
     }
 
-    public Clouster(double x, double y){
-        centroid=new Centroid();
-        newCetroid=new Centroid();
+    public Clouster(double x, double y) {
+        centroid = new Centroid();
+        newCetroid = new Centroid();
         this.centroid.setY(y);
         this.centroid.setX(x);
-        hotSpot=new HotSpot();
-        points=new ArrayList<>();
+        hotSpot = new HotSpot();
+        points = new ArrayList<>();
     }
 
-    public void addPoint(Sensor p){
+    // dodanie sensorów do klastra
+    public void addPoint(Sensor p) {
         points.add(p);
     }
 
+    // obliczenie cetroidu zwraca 0 jeżeli centroid jest taki sam. jeżeli centroid się zmienił zwraca wartość 1
     public int coutCentroid() {
         double x = 0;
         double y = 0;
-        int value=0;
+        int value = 0;
 
         for (Sensor point : points) {
             x += point.getX();
@@ -45,14 +51,36 @@ public class Clouster {
             newCetroid.setX(x / points.size());
             newCetroid.setY(y / points.size());
         }
-        if(!newCetroid.equals(centroid)){
+        if (!newCetroid.equals(centroid)) {
             centroid.setX(newCetroid.getX());
             centroid.setY(newCetroid.getY());
-            value=1;
+            value = 1;
         }
         return value;
     }
 
+    public void setNewHotSpot() {
+        if (points.size() > 1) {
+            boolean change=false;
+            for(Sensor sensor: points) {
+                if (sensor.getPoints().size() == 0 && sensor.getStatus()!=0) {
+                    hotSpot.setSensor(sensor);
+                    change = true;
+                }
+            }
+            if(!change && points.get(1).getStatus()!=0){
+                hotSpot.setSensor(points.get(1));
+            }
+            for(Sensor sensor:points){
+                if(sensor.getStatus()!=0){
+                    sensor.setHotSpot(hotSpot);
+                }
+            }
+        }
+    }
+
+
+    //getery i setery
 
     public List<Sensor> getPoints() {
         return points;
@@ -70,28 +98,30 @@ public class Clouster {
         this.centroid = centroid;
     }
 
-    public void setHotSpot(){
+    public void setHotSpot() {
 
-        int j=0;
-        hotSpot.setSensor(points.get(0));
-        for(int i=1;i<points.size();i++){
-            points.get(i).setHotSpot(hotSpot);
+        int j = 0;
+        if (points.size() > 0) {
+            hotSpot.setSensor(points.get(0));
+        }
+        for (int i = 1; i < points.size(); i++) {
+           points.get(i).setHotSpot(hotSpot);
         }
     }
 
-    public void setHotSpot(List<Sensor> sensors){
-        hotSpot=new HotSpot();
-        int j=0;
+    public void setHotSpot(List<Sensor> sensors) {
+        hotSpot = new HotSpot();
+        int j = 0;
         hotSpot.setSensor(points.get(0));
-        for(int i=1;i<points.size();i++){
-           Sensor s= sensors.get(sensors.indexOf(points.get(i)));
-           s.setHotSpot(hotSpot);
+        for (int i = 1; i < points.size(); i++) {
+            Sensor s = sensors.get(sensors.indexOf(points.get(i)));
+            s.setHotSpot(hotSpot);
         }
     }
 
 
-    public void setHotSpot(HotSpot hotSpot){
-        this.hotSpot=hotSpot;
+    public void setHotSpot(HotSpot hotSpot) {
+        this.hotSpot = hotSpot;
     }
 
     public HotSpot getHotSpot() {

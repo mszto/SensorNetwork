@@ -1,9 +1,11 @@
+
+// klasa odpowiada za impelentację algorytmu k-średnich, który tworzy klastry
 package Kmean;
 
 import Data.Arrow;
 import Data.Point;
 import Data.Sensor;
-import javafx.scene.paint.Color;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +15,15 @@ import java.util.Vector;
 public class Kmean {
 
     int c;
-    List<Clouster> clousters;
+    List<Clouster> clousters; // lista klastó
 
+
+    // konstruktory
     public Kmean() {
-        this(4);
+        this(6);
     }
 
+    // w tym konstruktorze losowane są współrzędne centroidów
     public Kmean(int k){
         c=k;
         Random rand=new Random();
@@ -29,7 +34,7 @@ public class Kmean {
         }
     }
 
-
+    // tworzenie klastrów, przypisywane są sensory do klastó i obliczane ponownie centroid. pętla do while wykonywana jest dopóki jest zmieniany centroid
     public void createClousters(List<Sensor> points){
         int changed=0;
         do{
@@ -43,7 +48,7 @@ public class Kmean {
     }
 
 
-
+    // metoda odpowiada za dodanie sensorów do centroidów obliczana jest odległość do centroidów, sensor jest przypisywany do klastra który ma najbliższy centroid
     public void addPointsToclouster(List<Sensor> points){
         clousters.forEach(clouster -> {clouster.getPoints().clear();});
         for (Sensor point: points) {
