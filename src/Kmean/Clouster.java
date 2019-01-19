@@ -61,18 +61,18 @@ public class Clouster {
 
     public void setNewHotSpot() {
         if (points.size() > 1) {
-            boolean change=false;
-            for(Sensor sensor: points) {
-                if (sensor.getPoints().size() == 0 && sensor.getStatus()!=0) {
+            boolean change = false;
+            for (Sensor sensor : points) {
+                if (sensor.getPoints().size() == 0 && sensor.getStatus() != 0) {
                     hotSpot.setSensor(sensor);
                     change = true;
                 }
             }
-            if(!change && points.get(1).getStatus()!=0){
+            if (!change && points.get(1).getStatus() != 0) {
                 hotSpot.setSensor(points.get(1));
             }
-            for(Sensor sensor:points){
-                if(sensor.getStatus()!=0){
+            for (Sensor sensor : points) {
+                if (sensor.getStatus() != 0) {
                     sensor.setHotSpot(hotSpot);
                 }
             }
@@ -105,7 +105,7 @@ public class Clouster {
             hotSpot.setSensor(points.get(0));
         }
         for (int i = 1; i < points.size(); i++) {
-           points.get(i).setHotSpot(hotSpot);
+            points.get(i).setHotSpot(hotSpot);
         }
     }
 
