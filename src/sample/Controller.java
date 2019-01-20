@@ -6,14 +6,16 @@ import Data.Sensor;
 import Kmean.Kmean;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Controller {
@@ -21,7 +23,7 @@ public class Controller {
     public AnchorPane rightPane;
     public Pane centerPane;
     public TextField sensorsTextField, pointsTextField;
-    public CheckBox showRangeCheckBox, showPointsCheckBox, showArrowCheckBox;
+    public CheckBox showRangeCheckBox, showPointsCheckBox, showArrowCheckBox, flatRoutingCheckBox, clusteringHierarchy;
     public Label timeLabel, lifeNetwork;
     private List<Sensor> sensors = new ArrayList<>();
     private List<Sensor> sensorsOff = new ArrayList<>();
@@ -68,7 +70,7 @@ public class Controller {
                 }
             });
             for (int i = 1; i < hotSpots.size(); i++) {
-                centerPane.getChildren().add(hotSpots.get(i).getSensor().getArrow());
+     //           centerPane.getChildren().add(hotSpots.get(i).getSensor().getArrow());
             }
 
         } else {
@@ -76,16 +78,35 @@ public class Controller {
                 centerPane.getChildren().remove(sensor.getArrow());
             });
             for (int i = 1; i < hotSpots.size(); i++) {
-                centerPane.getChildren().remove(hotSpots.get(i).getSensor().getArrow());
+              //  centerPane.getChildren().remove(hotSpots.get(i).getSensor().getArrow());
             }
         }
+    }
+
+    public void routingFlat(ActionEvent event) {
+        flatRoutingCheckBox.setSelected(true);
+        clusteringHierarchy.setSelected(false);
+        flatRoutingCheckBox.setDisable(true);
+        clusteringHierarchy.setDisable(false);
+    }
+
+    public void routingHierarchy(ActionEvent event) {
+        flatRoutingCheckBox.setSelected(false);
+        clusteringHierarchy.setSelected(true);
+        flatRoutingCheckBox.setDisable(false);
+        clusteringHierarchy.setDisable(true);
     }
 
 
     //dodanie sensoró do planszy
     private void addSensors() {
         Random rand = new Random();
-        int sens = Integer.parseInt(sensorsTextField.getText()); // pobranie ilości sensorów z pola tekstowego
+        int sens=0;
+        try {
+         sens=Integer.parseInt(sensorsTextField.getText()); // pobranie ilości sensorów z pola tekstowego
+        }catch (Exception e){
+            System.out.println("dupa");
+        }
         for (int i = 1; i <= sens; i++) {
             Sensor sensor = new Sensor(rand.nextInt(530) + 30, rand.nextInt(420) + 30, i);
             sensors.add(sensor); // dodanie sensora do listy
@@ -96,7 +117,12 @@ public class Controller {
     // dodanie punktów do planszy, współrzędne punktów są losowe
     private void addPoints() {
         Random rand = new Random();
-        int poi = Integer.parseInt(pointsTextField.getText()); // pobranie ilości punktów z pola tekstowego
+        int poi=0;
+        try {
+            poi = Integer.parseInt(pointsTextField.getText()); // pobranie ilości punktów z pola tekstowego
+        }catch (Exception e){
+            System.out.println("dd");
+        }
         for (int i = 1; i <= poi; i++) {
             Point point = new Point(rand.nextInt(530) + 30, rand.nextInt(420) + 30, i);
             points.add(point);
@@ -153,7 +179,7 @@ public class Controller {
         setLifeNetwork();
 
         // tutaj jest zapętlenie tzn metoda onUpdate wykonywana jest cały czas po wywołaniy animationtimer start w lini 154
-        if (false) {
+        if (clusteringHierarchy.isSelected()) {
             ClousteringHierarhy clousteringHierarhy = new ClousteringHierarhy();
             animationTimer = new AnimationTimer() {
                 @Override
@@ -161,9 +187,11 @@ public class Controller {
                     clousteringHierarhy.onUpdate();
                 }
             };
-        } else {
+
+        } else if (flatRoutingCheckBox.isSelected()) {
             hotSpots.add(new HotSpot());
-            PathFinds pathFind = new PathFinds(sensors, hotSpots.get(0).getSensor());
+            centerPane.getChildren().add(hotSpots.get(0).getSensor());
+            PathFinds pathFind = new PathFinds(hotSpots.get(0).getSensor());
             pathFind.setPath();
             animationTimer = new AnimationTimer() {
                 @Override
@@ -171,35 +199,69 @@ public class Controller {
                     pathFind.onUpdate();
                 }
             };
+
         }
-        animationTimer.start();
+        if (animationTimer != null)
+            animationTimer.start();
     }
 
+    public void stop(ActionEvent event) {
+        if (animationTimer != null) {
+            animationTimer.stop();
+        }
+    }
+
+    public void raport(ActionEvent event) {
+        Stage stage = new Stage();
+        Parent root = null;
+        FXMLLoader loader;
+        loader = new FXMLLoader(
+                getClass().getResource(
+                        "RaportSample.fxml"
+                )
+        );
+        stage.setTitle("Hello World");
+        try {
+            stage.setScene(
+                    new Scene(
+                            (Pane) loader.load()
+                    ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        RaportControler controller =
+                loader.<RaportControler>getController();
+        controller.initData(sensors);
+        stage.show();
+    }
+
+
     private class PathFinds {
-        //private List<Sensor> sensors;
+
         private Sensor goal;
         private long startTime;
         private Map<Sensor, Double> times;
         List<Sensor> sensorsOn;
-        private boolean hotSpotSed = false, changeSensorSend = false, pom = false, mainFlag = false;
-        private long timeon, timeoff, time3, time4, timeChange, timeCH;
+        private boolean changeSensorSend = false, pom = false;
+        private long timeon, timeoff;
+
         public PathFinds() {
 
         }
 
-        public PathFinds(List<Sensor> sensors, Sensor goal) {
-            this.times=new HashMap<>();
-            this.sensorsOn=new ArrayList<>();
+        public PathFinds(Sensor goal) {
+            this.times = new HashMap<>();
+            this.sensorsOn = new ArrayList<>();
             sensorsOn.addAll(sensors);
-            for (Sensor sensor:sensors) {
-                times.put(sensor,0.0);
+            for (Sensor sensor : sensors) {
+                times.put(sensor, 0.0);
             }
             this.startTime = System.currentTimeMillis();
             this.goal = goal;
             this.timeon = startTime;
             this.timeoff = startTime;
-            this.timeChange = startTime;
-            this.timeCH = startTime;
+
         }
 
         private double distance(Sensor sensor1, Sensor sensor2) {
@@ -211,13 +273,13 @@ public class Controller {
             List<Sensor> sen1 = new ArrayList<>();
             sen1.add(hotSpots.get(0).getSensor());
             List<Sensor> close = new ArrayList<>();
-            List<Sensor> sensorOn=new ArrayList<>();
-            sensorOn.addAll(sensors);
-            sensorOn.remove(sensorsOff);
-            sen1.addAll(sensorsOn);
+            sensorsOn.removeAll(sensorsOff);
+            sen1.addAll(sensors);
+            sen1.removeAll(sensorsOff);
             Sensor neigh = hotSpots.get(0).getSensor();
             double dist;
             boolean chen;
+
 
             sensors.forEach(sensor -> {
                 centerPane.getChildren().remove(sensor.getArrow());
@@ -229,6 +291,7 @@ public class Controller {
                 sen1.clear();
                 sen1.add(hotSpots.get(0).getSensor());
                 sen1.addAll(sensors);
+                sen1.removeAll(sensorsOff);
                 while (chen) {
                     for (Sensor sensor1 : sen1) {
 
@@ -267,14 +330,29 @@ public class Controller {
         public void onUpdate() {
             time = (int) ((int) System.currentTimeMillis() - startTime);
 
-            if (Integer.parseInt(lifeNetwork.getText()) <= 90) {
+            if (Integer.parseInt(lifeNetwork.getText()) < 90) {
+                animationTimer.stop();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText("Koniec, żywotność <90%");
+                //alert.setContentText("I have a great message for you!");
 
+                alert.show();
             }
             // wyświetlanie czasu
-            StringBuilder sB = new StringBuilder();
-            sB.append(time / 60000);
+            StringBuilder sB= new StringBuilder();
+            if (time / 60000 > 60) {
+                sB.append(time / 60000 - 60);
+            } else {
+                sB.append(time / 60000);
+            }
+
             sB.append(".");
-            sB.append(time / 1000);
+            if (time / 1000 > 60) {
+                sB.append(time / 1000 - 60);
+            } else {
+                sB.append(time / 1000);
+            }
             sB.append(".");
             sB.append(time % 1000);
             timeLabel.setText(sB.toString());
@@ -320,23 +398,29 @@ public class Controller {
                 pom = false;
             }
 
-            for(Sensor sensor:sensors){
 
-                if( System.currentTimeMillis()-times.get(sensor).doubleValue()>=500 && sensor.isGetNewData()){
+            for (Sensor sensor : sensorsOn) {
+
+                if (System.currentTimeMillis() - times.get(sensor).doubleValue() >= 500 && sensor.isGetNewData()) {
                     sensor.getArrow().setFill(Color.BLACK);
                     sensor.setGetNewData(false);
                     sensor.getHotSpot().getSensor().setGetNewData(true);
                     sensor.getHotSpot().getSensor().getArrow().setFill(Color.GOLD);
-                    if(sensor.reductionbatteryLevel(time)==0){
+                    if (sensor.reductionbatteryLevel(time) == 0) {
                         //sensorsOn.remove(sensor);
                         sensorsOff.add(sensor);
-                        setPath();
+                        changeSensorSend = true;
                         setLifeNetwork();
                     }
                     times.put(sensor.getHotSpot().getSensor(), Double.valueOf(System.currentTimeMillis()));
                 }
+                sensor.setTimeWork(timeLabel.getText());
             }
 
+            if (changeSensorSend) {
+                setPath();
+                changeSensorSend = false;
+            }
         }
     }
 
@@ -347,17 +431,18 @@ public class Controller {
         private List<HotSpot> mainHotSpot = new ArrayList<>();
         private long startTime;
         private List<HotSpot> secondHotSpots = new ArrayList<>();
-
+        private List<Sensor> sensorsOn;
         ClousteringHierarhy() {
-
+            sensorsOn=new ArrayList<>();
             kmean.createClousters(sensors);
             addHotSpots();
             sensors.clear();
             kmean.getClousters().forEach(clouster -> {
                 sensors.addAll(clouster.getPoints());
             });
+            sensorsOn.addAll(sensors);
             hotSpots.forEach(hotSpot -> {
-                sensors.remove(hotSpot.getSensor());
+                sensorsOn.remove(hotSpot.getSensor());
             });
             this.startTime = System.currentTimeMillis();
             this.timeon = startTime;
@@ -413,14 +498,30 @@ public class Controller {
 
         private void onUpdate() {
             time = (int) ((int) System.currentTimeMillis() - startTime);
-            if (Integer.parseInt(lifeNetwork.getText()) <= 90) {
+            if (Integer.parseInt(lifeNetwork.getText()) < 90) {
+                animationTimer.stop();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText("Koniec, żywotność <90%");
+                //alert.setContentText("I have a great message for you!");
 
+                alert.show();
             }
             // wyświetlanie czasu
-            StringBuilder sB = new StringBuilder();
-            sB.append(time / 60000);
+
+            StringBuilder sB=new StringBuilder();
+            if (time / 60000 > 60) {
+                sB.append(time / 60000 - 60);
+            } else {
+                sB.append(time / 60000);
+            }
+
             sB.append(".");
-            sB.append(time / 1000);
+            if (time / 1000 > 60) {
+                sB.append(time / 1000 - 60);
+            } else {
+                sB.append(time / 1000);
+            }
             sB.append(".");
             sB.append(time % 1000);
             timeLabel.setText(sB.toString());
@@ -434,13 +535,13 @@ public class Controller {
                     points.get(b).setFill(Color.ORANGE);
                     stack.push(points.get(b));
                 }
-                sensors.forEach(sensor -> {
+                sensorsOn.forEach(sensor -> {
                     if (sensor.reductionbatteryLevel(time) == 0) {
                         setLifeNetwork();
                         sensorsOff.add(sensor);
                     }
                 });
-
+                sensorsOn.remove(sensorsOff);
                 timeoff = System.currentTimeMillis();
                 pom = true;
             }
@@ -450,12 +551,12 @@ public class Controller {
                 while (!stack.empty()) {
                     Point point = stack.pop();
                     point.setFill(Color.BLACK);
-                    sensors.forEach(sensor -> {
+                    sensorsOn.forEach(sensor -> {
                         sensor.addPointRead(point);
                     });
                 }
                 timeon = System.currentTimeMillis();
-                sensors.forEach(sensor -> {
+                sensorsOn.forEach(sensor -> {
                     if (sensor.getStatus() == 1 && sensor.isGetNewData()) {
                         sensor.getArrow().setFill(Color.GOLD);
                         changeSensorSend = true;
@@ -468,7 +569,7 @@ public class Controller {
             //zakonczenie wysłania danych z sensorów oraz rozpoczęcie wysyłania danych z hotspotów w klastrach
             if (System.currentTimeMillis() - timeon >= 500 && changeSensorSend) {
 
-                sensors.forEach(sensor -> {
+                sensorsOn.forEach(sensor -> {
                     if (sensor.isGetNewData() && sensor.getStatus() == 1) {
                         sensor.getArrow().setFill(Color.BLACK);
                         if (sensor.reductionbatteryLevel(time) == 0) {
@@ -479,6 +580,7 @@ public class Controller {
                         sensor.getHotSpot().getSensor().setGetNewData(true);
                     }
                 });
+                sensorsOn.removeAll(sensorsOff);
                 changeSensorSend = false;
             }
 
@@ -532,11 +634,7 @@ public class Controller {
                 mainHotSpot.clear();
                 secondHotSpots.clear();
                 if (showArrowCheckBox.isSelected()) {
-                    sensors.forEach(sensor -> {
-                        if (sensor.getStatus() == 1) {
-                            // centerPane.getChildren().remove(sensor.getArrow());
-                        }
-                    });
+
                     for (int i = 1; i < hotSpots.size(); i++) {
                         centerPane.getChildren().remove(hotSpots.get(i).getSensor().getArrow());
                     }
@@ -555,8 +653,7 @@ public class Controller {
                 HotSpot SIM = hotSpots.get(0);
                 mainHotSpot.forEach(hotSpot -> {
                     hotSpot.getSensor().setHotSpot(SIM);  // ustawnienie hotspoda do którego są presyłane dane z klastrów
-                    // hotSpots.remove(hotSpot);
-                    //sensors.remove(hotSpot.getSensor());
+
                 });
 
                 for (int i = 0; i < secondHotSpots.size(); i++) {
@@ -570,11 +667,6 @@ public class Controller {
                 }
 
                 if (showArrowCheckBox.isSelected()) {
-                    sensors.forEach(sensor -> {
-                        if (sensor.getStatus() == 1) {
-                            //     centerPane.getChildren().add(sensor.getArrow());
-                        }
-                    });
                     for (int i = 1; i < hotSpots.size(); i++) {
                         centerPane.getChildren().add(hotSpots.get(i).getSensor().getArrow());
                     }

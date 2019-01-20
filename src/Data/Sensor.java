@@ -27,6 +27,7 @@ public class Sensor extends Rectangle {
     private HotSpot hotSpot; //hotspot do którego przesyłane są dane
     private Arrow arrow; //kierunek przesyłania danych
     private List<Point> points; //nasłuchiwane punkty
+    private int sum;
     private Map<Point, Integer> numberOfReads; // mapa przechowuje liczbę odczytanych danych z każdego punktu
     private String timeWork; //czas działąnia sensora
     private boolean isGetNewData; // flaga odpowiada za informację czy zostały odczytane czujnik
@@ -58,6 +59,7 @@ public class Sensor extends Rectangle {
         this.numberOfReads = new HashMap<>();
         this.timeWork = "0";
         this.isGetNewData = false;
+        this.sum=0;
     }
 
     // ustawienie hot spoda oraz utworzenie linie któa wskazuje kierunek przysłania danych
@@ -103,6 +105,7 @@ public class Sensor extends Rectangle {
         if (numberOfReads.get(point) != null) {
             isGetNewData = true;
             numberOfReads.put(point, numberOfReads.get(point) + 1);
+            sum++;
         }
     }
 
@@ -201,5 +204,42 @@ public class Sensor extends Rectangle {
 
     public void setGetNewData(boolean getNewData) {
         isGetNewData = getNewData;
+    }
+
+    public Map<Point, Integer> getNumberOfReads() {
+        return numberOfReads;
+    }
+
+    public void setNumberOfReads(Map<Point, Integer> numberOfReads) {
+        this.numberOfReads = numberOfReads;
+    }
+
+    public String getTimeWork() {
+        StringBuilder stringBuilder= new StringBuilder();
+
+        return timeWork;
+    }
+
+    public void setTimeWork(long timeWork) {
+        StringBuilder sB = new StringBuilder();
+        sB.append(timeWork / 60000);
+        sB.append(".");
+        sB.append(timeWork / 1000);
+        sB.append(".");
+        sB.append(timeWork % 1000);
+        this.timeWork = sB.toString();
+    }
+
+    public void setTimeWork(String timeWork) {
+
+        this.timeWork = timeWork;
+    }
+
+    public int getSum() {
+        return sum;
+    }
+
+    public void setSum(int sum) {
+        this.sum = sum;
     }
 }

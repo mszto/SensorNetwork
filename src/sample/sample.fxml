@@ -23,15 +23,16 @@
          <children>
             <TextField fx:id="sensorsTextField" layoutX="14.0" layoutY="26.0" prefHeight="31.0" prefWidth="101.0" promptText="Czujnik" text="0" AnchorPane.leftAnchor="14.0" />
             <TextField fx:id="pointsTextField" layoutX="14.0" layoutY="70.0" prefHeight="31.0" prefWidth="101.0" promptText="Punkt" text="0" />
-            <TextField layoutX="14.0" layoutY="107.0" prefHeight="31.0" prefWidth="101.0" />
             <Button fx:id="buttonStart" layoutX="14.0" layoutY="154.0" mnemonicParsing="false" onAction="#start" text="Start" />
             <Label layoutX="128.0" layoutY="31.0" text="Ilość czujników" />
             <Label layoutX="128.0" layoutY="75.0" text="ilość punktów" />
             <CheckBox fx:id="showRangeCheckBox" layoutX="18.0" layoutY="378.0" mnemonicParsing="false" onAction="#rangeCheckBox" selected="true" text="Pokaż zasięg" />
             <CheckBox fx:id="showPointsCheckBox" layoutX="18.0" layoutY="422.0" mnemonicParsing="false" onAction="#pointsCheckBox" selected="true" text="Pokaż punkty" />
             <CheckBox fx:id="showArrowCheckBox" layoutX="18.0" layoutY="460.0" mnemonicParsing="false" onAction="#arrowCheckBox" selected="true" text="Pokaż strzałki" />
-            <CheckBox fx:id="flatRoutingCheckBox" layoutX="14.0" layoutY="230.0" mnemonicParsing="false" text="Flat Routing" />
-            <CheckBox fx:id="clusteringHierarchy" layoutX="14.0" layoutY="265.0" mnemonicParsing="false" text="Clustering hierarchy" />
+            <CheckBox fx:id="flatRoutingCheckBox" layoutX="14.0" layoutY="230.0" mnemonicParsing="false" onAction="#routingFlat" text="Flat Routing" />
+            <CheckBox fx:id="clusteringHierarchy" layoutX="14.0" layoutY="265.0" mnemonicParsing="false" onAction="#routingHierarchy" text="Clustering hierarchy" />
+            <Button fx:id="buttonStop" layoutX="85.0" layoutY="154.0" mnemonicParsing="false" onAction="#stop" text="Stop" />
+            <Button fx:id="buttonRaport" layoutX="163.0" layoutY="155.0" mnemonicParsing="false" onAction="#raport" text="Raport" />
          </children></AnchorPane>
   </items>
 </SplitPane>
