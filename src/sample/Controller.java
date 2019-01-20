@@ -64,6 +64,7 @@ public class Controller {
     //wyświetlanie lub usuwanie lini przesyłania danych sensorów
     public void arrowCheckBox(ActionEvent event) {
         if (showArrowCheckBox.isSelected()) {
+
             sensors.forEach(sensor -> {
                 if (sensor.getStatus() == 1) {
                     centerPane.getChildren().add(sensor.getArrow());
@@ -108,8 +109,8 @@ public class Controller {
 
             return false;
         }
-        if(sens<0)
-            sens=0;
+        if(sens<=0)
+            return false;
 
         for (int i = 1; i <= sens; i++) {
             Sensor sensor = new Sensor(rand.nextInt(530) + 30, rand.nextInt(420) + 30, i);
@@ -130,7 +131,7 @@ public class Controller {
             return false;
         }
         if(poi<0)
-            poi=0;
+            return false;
 
         for (int i = 1; i <= poi; i++) {
             Point point = new Point(rand.nextInt(530) + 30, rand.nextInt(420) + 30, i);
@@ -182,14 +183,15 @@ public class Controller {
         showArrowCheckBox.setSelected(false);
         showPointsCheckBox.setSelected(true);
 
-        addSensors();
-        addPoints();
+        //addSensors();
+        //addPoints();
         //addHotSpots();
 
         setLifeNetwork();
 
         // tutaj jest zapętlenie tzn metoda onUpdate wykonywana jest cały czas po wywołaniy animationtimer start w lini 154
-        if (clusteringHierarchy.isSelected()) {
+        if (clusteringHierarchy.isSelected() && addPoints() && addSensors()) {
+            setLifeNetwork();
             ClousteringHierarhy clousteringHierarhy = new ClousteringHierarhy();
             animationTimer = new AnimationTimer() {
                 @Override
@@ -198,7 +200,8 @@ public class Controller {
                 }
             };
 
-        } else if (flatRoutingCheckBox.isSelected()) {
+        } else if (flatRoutingCheckBox.isSelected() && addPoints() && addSensors()) {
+            setLifeNetwork();
             hotSpots.add(new HotSpot());
             centerPane.getChildren().add(hotSpots.get(0).getSensor());
             PathFinds pathFind = new PathFinds(hotSpots.get(0).getSensor());
@@ -539,7 +542,9 @@ public class Controller {
             // wywołanie zdarzenia na punktach tzn punkty odczytały dane
             if ((System.currentTimeMillis() - timeoff) / 1000 >= 2) {
                 Random random = new Random();
-                int j = random.nextInt(points.size() / 2);
+                int j=0;
+                if(points.size()>0)
+                 j= random.nextInt(points.size() / 2);
                 for (int k = 0; k < j; k++) {
                     int b = random.nextInt(points.size());
                     points.get(b).setFill(Color.ORANGE);
@@ -658,6 +663,7 @@ public class Controller {
                 }
                 secondHotSpots.addAll(hotSpots);
                 secondHotSpots.removeAll(mainHotSpot);
+                if(secondHotSpots.size()>0)
                 secondHotSpots.remove(0);
 
                 HotSpot SIM = hotSpots.get(0);
