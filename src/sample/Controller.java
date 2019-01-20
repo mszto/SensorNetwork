@@ -99,30 +99,39 @@ public class Controller {
 
 
     //dodanie sensoró do planszy
-    private void addSensors() {
+    private boolean addSensors() {
         Random rand = new Random();
         int sens=0;
         try {
          sens=Integer.parseInt(sensorsTextField.getText()); // pobranie ilości sensorów z pola tekstowego
         }catch (Exception e){
-            System.out.println("dupa");
+
+            return false;
         }
+        if(sens<0)
+            sens=0;
+
         for (int i = 1; i <= sens; i++) {
             Sensor sensor = new Sensor(rand.nextInt(530) + 30, rand.nextInt(420) + 30, i);
             sensors.add(sensor); // dodanie sensora do listy
             centerPane.getChildren().addAll(sensor, sensor.getLabel()); // dodanie sensora do sceny tzn do okna widoczengo
         }
+
+        return true;
     }
 
     // dodanie punktów do planszy, współrzędne punktów są losowe
-    private void addPoints() {
+    private boolean addPoints() {
         Random rand = new Random();
         int poi=0;
         try {
             poi = Integer.parseInt(pointsTextField.getText()); // pobranie ilości punktów z pola tekstowego
         }catch (Exception e){
-            System.out.println("dd");
+            return false;
         }
+        if(poi<0)
+            poi=0;
+
         for (int i = 1; i <= poi; i++) {
             Point point = new Point(rand.nextInt(530) + 30, rand.nextInt(420) + 30, i);
             points.add(point);
@@ -131,6 +140,7 @@ public class Controller {
                 sensor.addPointToListen(point);
             }); // dodanie do sensorów punktów które są nasłuchiwane
         }
+        return true;
     }
 
     private void setLifeNetwork() {
